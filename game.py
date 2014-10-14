@@ -18,105 +18,17 @@ import math
 import random
 import os
 
+data = {'start':1, 'end':10, 'remaining_guesses': 0, 'secret':0}
+   
 
-
-#===============================================================================
-#
-#   Index of Functions (in order of declaration)
-#
-#   begin       
-#   cls         
-#   initRange   
-#   promptUser  
-#   main        
-#
-#===============================================================================
-
-
-
-#===============================================================================
-#
-#   begin(data)
-#
-#   data is a list containing [[start, end], rem, secret]
-#
-#===============================================================================
-def begin(data):
-  secret = data[2]
-  while True:    
-    guess = promptUser(data)
-    data[1] -= 1
-    guesses = data[1]    
-    
-    if guess == secret:
-      print("You WIN! The secret number is {}".format(secret))
-      exit()
-    elif guesses == 0:
-      print("You LOSE! The secret number is {}".format(secret))
-      exit()
-    elif secret < guess:
-      print("The secret number is less than {}.\n".format(guess))
-    else:
-      print("The secret number is greater than {}.\n".format(guess))
-    
-
-    
-#===============================================================================
-#
-#   cls()
-#
-#   clear console screen
-#
-#===============================================================================
 def cls():
     os.system(['clear','cls'][os.name == 'nt'])
 
 
-  
-#===============================================================================
-#
-#   initRange()
-#
-#   return: list holding a numeric range
-#   (ex. [1, 100])
-#
-#===============================================================================
-def initRange():
-  range = []  
-  start = 1
-  
-  msg = "Range of numbers will go from 1 through "
-  end = int(input(msg))
-  if end < 10:
-    end = 10
-  elif end <= start:
-    end = start * 10
-    
-  cls()
-  range.append(start)
-  range.append(end)
-  return range
-
-
-
-#===============================================================================
-#
-#   promptUser(data)
-#
-#   prompt user for their guess and validate it
-#
-#===============================================================================
-def promptUser(data):
-  # I like passing a list of data around in functions like this, but below
-  # looks a bit ugly because it's not immediately obvious what data[0][0]
-  # is supposed to be; not sure what to do about that.
-  start = data[0][0]
-  end = data[0][1]
-  rem = data[1]
-  
+def promptUser():  
   msg = "Type QUIT to quit.\n\n"
-  msg += "I am thinking of a number from {} to {}.\n\n".format(start, end)
-  msg += "You have {} guesses remaining.\n".format(rem)
+  msg += "I am thinking of a number from {} to {}.\n\n".format(data['start'], data['end'])
+  msg += "You have {} guesses remaining.\n".format(data['remaining_guesses'])
   
   valid = False  
   while not valid:    
@@ -131,7 +43,7 @@ def promptUser(data):
       # if casting to an int fails, an exception will be thrown      
       guess = int(guess)
       
-      if guess < start or guess > end:
+      if guess < data['start'] or guess > data['end']:
         print(error)        
       
       else:        
@@ -145,27 +57,36 @@ def promptUser(data):
   return guess
 
 
-
-#===============================================================================
-#
-#   main()
-#
-#===============================================================================
 def main():
   cls()
   
-  data = []
-  
-  range = initRange()
-  data.append(range)
+  msg = "Range of numbers will go from 1 through "
+  data['end'] = int(input(msg))
+  if data['end'] < 10:
+    data['end'] = 10
+  elif data['end'] <= data['start']:
+    data['end'] = data['start'] * 10
+    
+  cls()
   
   # starting remaining guesses
-  rem = math.floor(math.log(range[1], 2))
-  data.append(rem)
+  data['remaining_guesses'] = math.floor(math.log(data['end'], 2))
   
-  secret = random.randint(1, range[1])
-  data.append(secret)
+  data['secret'] = random.randint(1, data['end'])
   
-  begin(data)
+  while True:    
+    guess = promptUser()
+    data['remaining_guesses'] -= 1   
+    
+    if guess == data['secret']:
+      print("You WIN! The secret number is {}".format(data['secret']))
+      exit()
+    elif data['remaining_guesses'] == 0:
+      print("You LOSE! The secret number is {}".format(data['secret']))
+      exit()
+    elif data['secret'] < guess:
+      print("The secret number is less than {}.\n".format(guess))
+    else:
+      print("The secret number is greater than {}.\n".format(guess))
   
 main()
